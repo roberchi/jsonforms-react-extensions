@@ -1,0 +1,49 @@
+{
+  "definitions": {
+    "employee": {
+      "type": "object",
+      "properties":{
+        "id":{
+          "type":"integer"
+        },
+        "name":{
+          "type":"string"
+        },        
+        "surname":{
+          "type":"string"
+        },        
+        "city":{
+          "type":"string"
+        }
+      }
+    }
+  },
+  "type": "object",
+  "properties": {
+    "refresh":{
+      "type":"string"
+    },
+    "employees":{
+      "type":"array",
+      "items":{
+        "$ref": "#/definitions/employee"
+      }
+    },
+    "filter":{
+      "type":"string"
+    },
+    "upper_filter":{
+      "type":"string"
+    },
+    "filtered_employees":{
+      "type":"array",
+      "items":{
+        "$ref": "#/definitions/employee"
+      }
+    },
+    "count": {
+      "type": "integer",
+      "minimum":0
+    }
+  }
+}

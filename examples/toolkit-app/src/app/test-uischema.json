@@ -1,0 +1,76 @@
+{
+  "type": "VerticalLayout", 
+   "actions":[
+    {
+      "type": "Action",
+      "scope": "#/properties/count",
+      "kind": "calc",
+      "script": "return filtered_employees.length;",
+      "depends": ["#/properties/filtered_employees"]
+    },
+    {
+      "type": "Action",
+      "scope": "#/properties/employees",
+      "kind": "rest",
+      "depends": "#/properties/refresh",
+      "method": "get",
+      "url": "/api/employee"
+    },
+    {
+      "type": "Action",
+      "scope": "#/properties/upper_filter",
+      "kind": "calc",
+      "script": "console.log(params); return filter?.toUpperCase();",
+      "depends": ["#/properties/filter"]
+    },
+    {
+      "type": "Action",
+      "scope": "#/properties/filtered_employees",
+      "kind": "calc",
+      "script": "return employees.filter(e=>filter === undefined || filter === '' || e.name?.includes(filter) || e.surname?.includes(filter));",
+      "depends": ["#/properties/employees", "#/properties/filter"]
+    }
+  ],
+  "elements": [
+    {
+      "type": "VerticalLayout",
+      "elements": [
+        {
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/refresh",
+              "options": {
+                "refresh": true,
+                "actionScopes": [
+                  "#/properties/employees",
+                  "#/properties/filtered_employees"
+                ]
+              }
+            },
+            {
+              "type": "Control",
+              "label": "Seacrh by name",
+              "scope": "#/properties/filter"
+            }
+          ]
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/filtered_employees"
+        },
+        {
+          "type": "Control",
+          "label": "Upper case filter",
+          "scope": "#/properties/upper_filter"
+        },
+        {
+          "type": "Control",
+          "label": "Total employees",
+          "scope": "#/properties/count"
+        }
+      ]
+    }
+  ]
+}
