@@ -9,6 +9,13 @@
       "depends": ["#/properties/filtered_employees"]
     },
     {
+      "scope": "#/properties/countX2",
+      "kind": "calc",
+      "behavior": ["on-change", "on-init"],
+      "script": "return count && count*2;",
+      "depends": ["#/properties/count"]
+    },
+    {
       "scope": "#/properties/employees",
       "kind": "rest",
       "depends": "#/properties/refresh",
@@ -81,7 +88,18 @@
         {
           "type": "Control",
           "label": "Total employees",
-          "scope": "#/properties/count"
+          "scope": "#/properties/count",
+          "options": {
+            "readonly": true
+          }
+        },
+        {
+          "type": "Control",
+          "label": "",
+          "scope": "#/properties/countX2",
+          "options": {
+            "readonly": true
+          }
         }
       ]
     }

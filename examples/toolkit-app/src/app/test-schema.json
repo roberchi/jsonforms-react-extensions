@@ -44,6 +44,10 @@
     "count": {
       "type": "integer",
       "minimum":0
+    },
+    "countX2": {
+      "type": "integer",
+      "minimum":0
     }
   }
 }
