@@ -5,5 +5,22 @@
   "projectType": "application",
   "tags": [],
   "// targets": "to see all targets run: nx show project toolkit-app --web",
-  "targets": {}
+  "targets": {
+    "serve-mock-api-only": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "json-server --watch ./examples/toolkit-app/api/mock-data/db.json --port 3001"
+      }
+    },
+    "serv-app-and-mock-api": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "nx serve toolkit-app",
+          "json-server --watch ./examples/toolkit-app/api/mock-data/db.json --port 3001"
+        ]
+      },
+      "parallelism": true
+    }
+  }
 }

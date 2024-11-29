@@ -21,18 +21,17 @@ class JsEval {
     // Method to create the sandbox with the current whitelist
     private createSandbox(): ProxyHandler<any> {
       return new Proxy(this.allowedGlobals, {
-        has: () => false, // Deny access to all non-explicit properties
+        has: () => false, // Nega l'accesso a variabili globali non autorizzate
         get: (target, key) => {
           if (!(key in target)) {
-            throw new Error(`Access to property '${String(key)}' not allowed`);
+            throw new Error(`Accesso alla proprietà '${key.toString()}' non consentito`);
           }
           return target[key as string];
         },
       });
     }
   
-    async execute(script: string, params: Record<string, any> = {}): Promise<any> {
-      try {
+    async executeAsync(script: string, params: Record<string, any> = {}): Promise<any> {
         const sandbox = this.createSandbox(); // Sandbox based on the current whitelist
   
         // Create the function that will execute the script
@@ -57,6 +56,27 @@ class JsEval {
   
         // Execute the function with timeout
         return await this.runWithTimeout(() => func(sandbox, params), this.timeoutMs);
+    }
+
+    execute(script: string, params: Record<string, any> = {}): any {
+      try {
+        const sandbox = this.createSandbox(); // Sandbox based on the current whitelist
+  
+        // Create the function that will execute the script
+        // eslint-disable-next-line no-new-func
+        const func = new Function(
+          'sandbox',
+          'params',
+          `          
+            with (sandbox) {
+              const { ${Object.keys(params).join(', ')} } = params; // Decomposizione parametri
+              ${script}
+            }
+          `
+        );
+  
+        // Execute the function with timeout
+        return func(sandbox, params);
       } catch (err) {
         console.error("Error during script execution:", err);
         throw err; // Propagate the error for external handling

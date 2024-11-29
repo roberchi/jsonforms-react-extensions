@@ -44,7 +44,7 @@ export function App() {
       />
       <br></br>
       <div>{JSON.stringify(data)}</div>
-      <ul>{errors?.map((e, i)=><li key={i}>{e.message}</li>)}</ul>
+      <ul>{errors?.map((e, i)=><li key={i}>{e.schemaPath} {e.message}</li>)}</ul>
     </div>
 
     </StyledApp>

@@ -85,3 +85,9 @@ export const getActionDepends = (act:IAction):string[] => {
     else return [act.depends];
 }
 
+// this function is used to get the dependencies of an action
+export const depends = (element: IAction): string[] => {
+    if(element.depends === null) return [];
+    else if(Array.isArray(element.depends)) return element.depends as string[];
+    else return [element.depends];
+}

@@ -1,29 +1,31 @@
 import { INIT, UPDATE_DATA, UPDATE_CORE, JsonFormsCore, CoreActions, UISchemaActions, UISchemaElement } from "@jsonforms/core";
-import _, { sortBy } from 'lodash';
 import { IUISchemaToolkit } from "./interfaces";
-import { executeActions, sortByActionDependencies } from "./actions";
-import { exec } from "child_process";
-
+import { execute, prepare } from "./actions";
+import _ from "lodash";
 
 
 export const actionsMiddleware = (state: JsonFormsCore, 
     action: CoreActions, 
     defaultReducer: (state: JsonFormsCore, action: CoreActions) => JsonFormsCore) => {
-    const newState = defaultReducer(state, action);
-    console.log('New state 1', newState);
-            
     switch (action.type) {
-        case INIT:
+        case INIT:{
+            console.log("Middleware INIT");
             // sort actions by dependencies
-            (newState.uischema as IUISchemaToolkit).actions  = sortByActionDependencies((newState.uischema as IUISchemaToolkit).actions);
-            return newState;
-        case UPDATE_CORE:
+            const actionsToExecute = prepare((state.uischema as IUISchemaToolkit).actions);
+            _.set(state, "actions", actionsToExecute);
+            const initState = execute("on-init", actionsToExecute, state);
+            return defaultReducer(initState, action);
+        }
+        //case UPDATE_CORE:
         case UPDATE_DATA: {
-            // execute actions and set new state
-            const actions = (newState.uischema as IUISchemaToolkit).actions;
-            return executeActions(actions, newState, state);
+            console.log("Middleware UPDATE_DATA");
+            // execute actions and set new state   
+            const newState = defaultReducer(state, action);             
+            const actionsToExecute = _.get(state, "actions");
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            return execute("on-change", actionsToExecute!, newState, state);
         }
         default:
-            return newState;
+            return defaultReducer(state, action);
     }
 };

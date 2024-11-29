@@ -2,31 +2,34 @@
   "type": "VerticalLayout", 
    "actions":[
     {
-      "type": "Action",
       "scope": "#/properties/count",
       "kind": "calc",
-      "script": "return filtered_employees.length;",
+      "behavior": ["on-change", "on-init"],
+      "script": "console.log('filtered_employees: ', filtered_employees); return filtered_employees && filtered_employees.length;",
       "depends": ["#/properties/filtered_employees"]
     },
     {
-      "type": "Action",
       "scope": "#/properties/employees",
       "kind": "rest",
       "depends": "#/properties/refresh",
+      "behavior": "on-change",
       "method": "get",
-      "url": "/api/employee"
+      "url": "http://localhost:3001/employees"
     },
     {
-      "type": "Action",
+      "id": "upper-filter",
       "scope": "#/properties/upper_filter",
       "kind": "calc",
-      "script": "console.log(params); return filter?.toUpperCase();",
+      "behavior": "on-change",
+      "script": "return filter && filter.toUpperCase();",
       "depends": ["#/properties/filter"]
     },
+    
     {
-      "type": "Action",
+      "id": "filter-employees",
       "scope": "#/properties/filtered_employees",
       "kind": "calc",
+      "behavior": ["on-change", "on-init"],
       "script": "return employees.filter(e=>filter === undefined || filter === '' || e.name?.includes(filter) || e.surname?.includes(filter));",
       "depends": ["#/properties/employees", "#/properties/filter"]
     }
@@ -58,12 +61,22 @@
         },
         {
           "type": "Control",
+          "scope": "#/properties/employees",
+          "options":{
+            "readonly": true
+          }
+        },
+        {
+          "type": "Control",
           "scope": "#/properties/filtered_employees"
         },
         {
           "type": "Control",
           "label": "Upper case filter",
-          "scope": "#/properties/upper_filter"
+          "scope": "#/properties/upper_filter",
+          "options": {
+            "readonly": true
+          }
         },
         {
           "type": "Control",
