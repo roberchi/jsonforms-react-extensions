@@ -2,15 +2,13 @@ import { JsonFormsCore } from "@jsonforms/core";
 import { EvalAction, ExceptionErrorObject } from "../actions";
 import { IAction } from "../interfaces";
 import _ from "lodash";
-import { ErrorObject } from "ajv";
 import {allowedGlobals, JsEval, prepareParams} from "./jsEval"
-import { getActionDepends } from "../utils/dependency";
 
 export interface IActionCalc extends IAction {
     script: string;
 }
 
-export const calcAction:EvalAction = (act: IAction, state:JsonFormsCore) : Promise<any> => {
+export const calcAction:EvalAction = async (act: IAction, state:JsonFormsCore) : Promise<any> => {
     // Creare un'istanza di JsEval con un timeout di 2 secondi
     const jsEval = new JsEval(allowedGlobals, 2000);
     const data = _.cloneDeep(state.data);

@@ -12,6 +12,8 @@ export interface IActionRest extends IAction {
   body: string;
   prepareBodyScript?: string;
   prepareUrlScript?: string;
+  prepareHeadersScript?: string;
+  mapResponseScript?: string;
 }
 
 export const restAction: EvalAction = async (act: IAction, state: JsonFormsCore): Promise<any> => {
@@ -23,17 +25,22 @@ export const restAction: EvalAction = async (act: IAction, state: JsonFormsCore)
   // prepare url
   const url = prepareUrl(restAct, state);
 
+  // prepare headers
+  const headers = prepareHeaders(restAct, state);
+
   // TODO: authenticate rest client
 
   const result = await fetch(url, {
     method: restAct.method,
     body: body ? JSON.stringify(body) : null,
-    headers: body ? {
+    headers: body ? { ...headers,
         'Content-Type': 'application/json'
-    } : {}
+    } : headers
   });
   if(result.status === 200) {
     const dataFromService = await result.json();
+    // map response to state
+    const mappedData = mapResponse(restAct, act, data, dataFromService);
     _.set(data, act.scope.substring('#/properties/'.length).replace('/', '.'), dataFromService);
   }
   else {
@@ -42,6 +49,33 @@ export const restAction: EvalAction = async (act: IAction, state: JsonFormsCore)
   return data;
 };
 
+const prepareHeaders = (restAct: IActionRest, state: JsonFormsCore): any => {
+  let headers: any = {};
+  const jsEval = new JsEval(allowedGlobals, 2000);
+  if (restAct.prepareHeadersScript) {
+    try {
+      const params = prepareParams(state, restAct);
+      headers = jsEval.execute(restAct.prepareHeadersScript, params);
+    } catch (e) {
+      throw new Error(`headers script error: ${e}`);
+    }
+  }
+  return headers;
+}
+
+const mapResponse = (restAct: IActionRest, act: IAction, state: JsonFormsCore, dataFromService: any): any => {
+  let mappedData = dataFromService;
+  const jsEval = new JsEval(allowedGlobals, 2000);
+  if (restAct.mapResponseScript) {
+    try {
+      const params = {response:dataFromService};
+      mappedData = jsEval.execute(restAct.mapResponseScript, params);
+    } catch (e) {
+      throw new Error(`map response script error: ${e}`);
+    }
+  }
+  return mappedData;
+}
 
 const prepareBody = (restAct: IActionRest, state: JsonFormsCore): any => {
   if (restAct.method === 'POST' || restAct.method === 'PUT') {

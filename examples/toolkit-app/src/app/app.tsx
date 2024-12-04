@@ -8,6 +8,7 @@ import test_data from './test-data.json';
 import { ErrorObject } from 'ajv';
 import { INIT, UPDATE_DATA, UPDATE_CORE, Middleware, CoreActions, JsonFormsCore } from  '@jsonforms/core'
 import { ActionsMiddleware } from "@jsonforms-react-extensions/toolkit";
+import { LinearProgress } from '@mui/material';
 
 const renderers = [
   ...materialRenderers,
@@ -25,11 +26,13 @@ export function App() {
 
   const [data, setData] = useState(test_data);
   const [errors, setErrors] = useState<ErrorObject[]>();
-  const actionMiddleware = useMemo(() => ActionsMiddleware.actionsMiddleware(setData, setErrors), [setData, setErrors]);
+  const [status, setStatus] = useState<"pending"|"fulfilled"|"failed">("fulfilled");
+  const actionMiddleware = useMemo(() => ActionsMiddleware.actionsMiddleware(setData, setErrors, setStatus), [setData, setErrors]);
 
   return (
     <StyledApp>
       <div className='App'>
+      {status === "pending" && <LinearProgress></LinearProgress>}
       <JsonForms
         schema={test_schema}
         uischema={test_uischema}

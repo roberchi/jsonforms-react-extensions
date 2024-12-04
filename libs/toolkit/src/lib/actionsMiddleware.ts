@@ -6,14 +6,18 @@ import { ErrorObject } from "ajv";
 
 type SetStatusCallback = (status: any) => void;
 type SetErrorsCallback = (errors: ErrorObject[]) => void;
+export type ExecutionStatus = "pending"|"fulfilled"|"failed";
+type ExecutionStatuesCallback = (status: ExecutionStatus) => void;
 
 export class ActionsMiddleware
 {
     setStatusCallback:SetStatusCallback;
     setErrorsCallback:SetErrorsCallback;
-    constructor(setStatusCallback:SetStatusCallback, setErrorsCallback:SetErrorsCallback) {
+    executionStatuesCallback?:ExecutionStatuesCallback;
+    constructor(setStatusCallback:SetStatusCallback, setErrorsCallback:SetErrorsCallback, executionStatuesCallback?:ExecutionStatuesCallback) {
         this.setStatusCallback = setStatusCallback;
         this.setErrorsCallback = setErrorsCallback;
+        this.executionStatuesCallback = executionStatuesCallback;
     }
     async = (state: JsonFormsCore, 
         action: CoreActions, 
@@ -28,18 +32,22 @@ export class ActionsMiddleware
                 const afterReducer = defaultReducer(state, action);             
                     
                 (async () => { 
-
+                    this.executionStatuesCallback && this.executionStatuesCallback("pending");
+                
                     try{
                         const actionsToExecute = _.get(state, "actions");
                         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                         const result = await execute("on-init", actionsToExecute!, afterReducer);
                         this.setStatusCallback(result.data);
+                        this.executionStatuesCallback && this.executionStatuesCallback("fulfilled");
                     }
                     catch(e){
                         if(e instanceof ExceptionErrorObject)
                             this.setErrorsCallback([e.objectError]);
                         else
                             this.setErrorsCallback([{ instancePath:"/", keyword: 'action error', schemaPath: "(action)", params: {}, message: `call action error: ${(e as any).message}` }]);
+                    
+                        this.executionStatuesCallback && this.executionStatuesCallback("failed");
                     }
                 })();
                 return afterReducer;
@@ -51,18 +59,22 @@ export class ActionsMiddleware
                 const afterReducer = defaultReducer(state, action);             
                     
                 (async () => { 
-
+                    this.executionStatuesCallback && this.executionStatuesCallback("pending");
+                
                     try{
                         const actionsToExecute = _.get(state, "actions");
                         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                         const result = await execute("on-change", actionsToExecute!, afterReducer, state);
                         this.setStatusCallback(result.data);
+                        this.executionStatuesCallback && this.executionStatuesCallback("fulfilled");
                     }
                     catch(e){
                         if(e instanceof ExceptionErrorObject)
                             this.setErrorsCallback([e.objectError]);
                         else
                             this.setErrorsCallback([{ instancePath:"/", keyword: 'action error', schemaPath: "(action)", params: {}, message: `call action error: ${(e as any).message}` }]);
+                    
+                        this.executionStatuesCallback && this.executionStatuesCallback("failed");
                     }
                 })();
                 return afterReducer;
@@ -72,8 +84,8 @@ export class ActionsMiddleware
         }
     }
 
-    public static actionsMiddleware = (setStatusCallback:SetStatusCallback, setErrorsCallback:SetErrorsCallback) => {
-        return new ActionsMiddleware(setStatusCallback, setErrorsCallback).async;
+    public static actionsMiddleware = (setStatusCallback:SetStatusCallback, setErrorsCallback:SetErrorsCallback, executionStatuesCallback?:ExecutionStatuesCallback) => {
+        return new ActionsMiddleware(setStatusCallback, setErrorsCallback, executionStatuesCallback).async;
     }
 }
 
