@@ -2,9 +2,10 @@ import { JsonFormsCore } from "@jsonforms/core";
 import { actionBehavior, IAction, IActionBase, IActionRef, IActionToExecute } from "./interfaces";
 import { dependency, depNode, getActionDepends } from "./utils/dependency";
 import _ from "lodash";
+import { ErrorObject } from "ajv";
 
 // register actions
-export type EvalAction = (act: IAction, state: JsonFormsCore) => JsonFormsCore;
+export type EvalAction = (act: IAction, state: JsonFormsCore) => Promise<any>;
 const actions: Map<string, EvalAction> = new Map();
 export const registerAction = (actType:string, evalAct:EvalAction) => actions.set(actType, evalAct);
 
@@ -42,30 +43,31 @@ const sortByActionDependencies = (acts: IAction[]): IAction[] => {
     return dependency.sort<IAction>(deps[1]);
 };
 
-export const execute = (behavior:actionBehavior, actions:IActionToExecute, currentState:JsonFormsCore, prevState: JsonFormsCore = currentState): JsonFormsCore => {
+export const execute = async (behavior:actionBehavior, actions:IActionToExecute, afterDefaultReducer:JsonFormsCore, beforeDefaultReducer: JsonFormsCore = afterDefaultReducer): Promise<JsonFormsCore> => {
     const actionsToExecute = _.get(actions, behavior);
     
     switch(behavior){
         case "not-execute":
-            return currentState; // do nothing
+            return afterDefaultReducer; // do nothing
         case "on-init":
         case "on-event":{
-            let newState = { ...currentState };
-            actionsToExecute.forEach((act) => newState = evalAction(act, newState));
-            return newState;
+            const newState = _.cloneDeep(afterDefaultReducer);
+            for(const act of actionsToExecute){
+                const  data = await evalAction(act, newState);
+                newState.data = data;
+            }
+            return newState; 
         }
         case "on-change":{
-            let pState = { ...prevState };
-            let cState = { ...currentState };
-            actionsToExecute.forEach((act) => {
+            const newState = _.cloneDeep(afterDefaultReducer);
+            for(const act of actionsToExecute){
                 // evaluate action dependencies
-                if(isStateChanged(act, cState, prevState)) {
-                    const nState = {...evalAction(act, cState)};
-                    pState = cState;
-                    cState = nState;
+                if(isStateChanged(act, newState.data, beforeDefaultReducer.data)) {
+                    const data = await evalAction(act, newState);
+                    newState.data = data;
                 }
-            });
-            return cState;   
+            };
+            return newState;   
         }     
     }
 }
@@ -73,13 +75,13 @@ export const execute = (behavior:actionBehavior, actions:IActionToExecute, curre
 
 
 // evaluate if the action dependencies has been changed
-const isStateChanged = (act: IAction, newState: JsonFormsCore, oldState: JsonFormsCore): boolean => {    
+const isStateChanged = (act: IAction, afterData: any, beforeData: any): boolean => {    
     if(!act.depends) return true;
     const depends = _.isArray(act.depends)? act.depends : [act.depends];
     let res = false;
     depends.forEach((d) => {
-        const path = d.replace("#/properties/", "data.").replace("/", ".");
-        if(_.get(oldState, path) !== _.get(newState, path)) {
+        const path = d.substring("#/properties/".length).replace("/", ".");
+        if(_.get(beforeData, path) !== _.get(afterData, path)) {
             res = true;
             return;
         }
@@ -88,10 +90,13 @@ const isStateChanged = (act: IAction, newState: JsonFormsCore, oldState: JsonFor
 }
 
 // evaluate the action
-const evalAction = (act: IAction, state: JsonFormsCore): JsonFormsCore => {
+const evalAction = async (act: IAction, state: JsonFormsCore): Promise<any> => {
+    console.log(`Action ${act.kind} is executing`);
     const evalAct = actions.get(act.kind);
     if(!evalAct) throw new Error(`Action ${act.kind} not found`);
-    return evalAct(act, state);
+    const data = await evalAct(act, state);
+    console.log(`Action ${act.kind} is executed`);
+    return data;
 };
 
 function hasBehavior(behavior: actionBehavior | actionBehavior[], checkBehavior: actionBehavior): unknown {
@@ -102,7 +107,19 @@ function hasBehavior(behavior: actionBehavior | actionBehavior[], checkBehavior:
 }
 
 // used to register action not yet implemented
-export const notYetImplemented:EvalAction = (act:IAction, state:JsonFormsCore):JsonFormsCore =>{
+export const notYetImplemented:EvalAction = (act:IAction, state:JsonFormsCore):Promise<JsonFormsCore> =>{
     console.log(`Action ${act.kind}, not yet implemented`);
-    return state;
+    return Promise.resolve(state);
+}
+
+export class ExceptionErrorObject extends Error{
+    objectError: ErrorObject;
+    baseException?: Error;
+
+    constructor(objectError: ErrorObject, baseException?: Error){
+        super(objectError.message);
+        this.objectError = objectError;
+        this.baseException = baseException;
+    }
+    
 }

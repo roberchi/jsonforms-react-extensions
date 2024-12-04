@@ -4,7 +4,7 @@
       "type": "object",
       "properties":{
         "id":{
-          "type":"integer"
+          "type":"string"
         },
         "name":{
           "type":"string"
@@ -29,6 +29,13 @@
         "$ref": "#/definitions/employee"
       }
     },
+    "all_employees":{
+      "type":"array",
+      "items":{
+        "$ref": "#/definitions/employee"
+      }
+    },
+    
     "filter":{
       "type":"string"
     },

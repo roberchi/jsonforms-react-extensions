@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { JsonForms } from '@jsonforms/react';
 import { materialCells, materialRenderers } from '@jsonforms/material-renderers';
 import test_schema from './test-schema.json';
@@ -7,7 +7,7 @@ import test_uischema from './test-uischema.json';
 import test_data from './test-data.json';
 import { ErrorObject } from 'ajv';
 import { INIT, UPDATE_DATA, UPDATE_CORE, Middleware, CoreActions, JsonFormsCore } from  '@jsonforms/core'
-import { actionsMiddleware } from "@jsonforms-react-extensions/toolkit";
+import { ActionsMiddleware } from "@jsonforms-react-extensions/toolkit";
 
 const renderers = [
   ...materialRenderers,
@@ -25,6 +25,7 @@ export function App() {
 
   const [data, setData] = useState(test_data);
   const [errors, setErrors] = useState<ErrorObject[]>();
+  const actionMiddleware = useMemo(() => ActionsMiddleware.actionsMiddleware(setData, setErrors), [setData, setErrors]);
 
   return (
     <StyledApp>
@@ -35,7 +36,7 @@ export function App() {
         data={data}
         renderers={renderers}
         cells={materialCells}
-        middleware={actionsMiddleware}
+        middleware={actionMiddleware} 
         onChange={(state) => {
           setErrors(state.errors);
           setData(state.data);

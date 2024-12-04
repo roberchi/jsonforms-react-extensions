@@ -3,7 +3,8 @@ import { calcAction } from './lib/actions/calcAction';
 import { restAction } from './lib/actions/restAction';
 
 export * from './lib/toolkit';
-export {actionsMiddleware} from './lib/actionsMiddleware';
+export {ActionsMiddleware} from './lib/actionsMiddleware';
+export {AsyncMiddleware} from './lib/asyncMiddleware';
 
 
 // register actions for middleware

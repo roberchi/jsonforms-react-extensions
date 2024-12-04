@@ -1,19 +1,19 @@
 {
   "employees": [
     {
-      "id": "1",
+      "id": 1,
       "name": "Alice",
       "surname": "Smith",
       "city": "London"
     },
     {
-      "id": "2",
+      "id": 2,
       "name": "Bob",
       "surname": "Brown",
       "city": "Paris"
     },
     {
-      "id": "3",
+      "id": 3,
       "name": "Roby",
       "surname": "Black",
       "city": "Berlin"

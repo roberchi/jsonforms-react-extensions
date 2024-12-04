@@ -5,21 +5,13 @@
       "scope": "#/properties/count",
       "kind": "calc",
       "behavior": ["on-change", "on-init"],
-      "script": "console.log('filtered_employees: ', filtered_employees); return filtered_employees && filtered_employees.length;",
+      "script": "return filtered_employees && filtered_employees.length;",
       "depends": ["#/properties/filtered_employees"]
-    },
-    {
-      "scope": "#/properties/countX2",
-      "kind": "calc",
-      "behavior": ["on-change", "on-init"],
-      "script": "return count && count*2;",
-      "depends": ["#/properties/count"]
     },
     {
       "scope": "#/properties/employees",
       "kind": "rest",
-      "depends": "#/properties/refresh",
-      "behavior": "on-change",
+      "behavior": "on-init",
       "method": "get",
       "url": "http://localhost:3001/employees"
     },
@@ -69,6 +61,14 @@
         {
           "type": "Control",
           "scope": "#/properties/employees",
+          "options":{
+            "readonly": true
+          }
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/all_employees",
+          "label": "All employees",
           "options":{
             "readonly": true
           }
