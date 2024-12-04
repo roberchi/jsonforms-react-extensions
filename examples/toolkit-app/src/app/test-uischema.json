@@ -32,7 +32,23 @@
       "behavior": ["on-change", "on-init"],
       "script": "return employees.filter(e=>filter === undefined || filter === '' || e.name?.includes(filter) || e.surname?.includes(filter));",
       "depends": ["#/properties/employees", "#/properties/filter"]
+    },
+    {
+      "id": "employees-changed",
+      "kind": "rise-event-on-array-change",
+      "behavior": ["on-change"],
+      "events": ["delete"],
+      "depends": ["#/properties/employees"]
+    },
+    {
+      "id": "update-employees",
+      "kind": "rest",
+      "behavior": ["on-event"],
+      "eventPattern": "employees-changed/delete/{id}",
+      "url": "http://localhost:3001/employees/{id}",
+      "method": "delete"
     }
+
   ],
   "elements": [
     {
@@ -63,7 +79,7 @@
           "type": "Control",
           "scope": "#/properties/employees",
           "options":{
-            "readonly": true
+            "readonly": false
           }
         },
         {
