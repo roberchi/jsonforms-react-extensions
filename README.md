@@ -1,4 +1,4 @@
-# Jsonforms React (on not) Extensions
+# Jsonforms React (or not) Extensions
 The goal of the toolkit library is to enhance the JsonForms framework by providing additional middleware capabilities. This allows developers to implement custom business logic and UI behaviors within their forms, including the ability to call external services. By leveraging this toolkit, JsonForms can be transformed into a more powerful low-code/no-code platform, enabling more dynamic and responsive form interactions.
 
 ## Action Middleware
@@ -108,3 +108,30 @@ In the following example the employyees service is called with GET method and th
 
 To run the demo app with nock REST api use: 
 `npx nx run  toolkit-app:serv-app-and-mock-api`
+
+# open issue and roadmap
+
+issue: 
+- warining on status update on INIT
+- debounce, if needed
+  
+road map without priorities:
+- implement REST service authentication call back
+- implement on-event
+- action for managed change array event
+- if/than/else action
+- switch/case action
+- sequance action gropup
+- refactoring behavior
+  "actions":{
+    "on-init":[... actions ...],
+    "on-change": [... actions ...],
+    "on-event": [... actions ...],
+    "refs": [... actions ...] <<== not-executed
+
+. other extensions:
+  - dynamic control labels in the forms
+  - dynamic combo options
+  - navigation controll between forms
+  
+  
