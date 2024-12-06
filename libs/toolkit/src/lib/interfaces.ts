@@ -1,5 +1,7 @@
 import { UISchemaElement } from "@jsonforms/core";
 
+export type MaybePromise<T> = T | Promise<T>;
+
 // not-execute: the action is not executed, this behavior is used only to create action to be referenced 
 export type actionBehavior = 'not-execute' | 'on-init' | 'on-change' | 'on-event';
 

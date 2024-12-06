@@ -1,7 +1,7 @@
 import { INIT, UPDATE_DATA, UPDATE_CORE, JsonFormsCore, CoreActions, Actions,   } from "@jsonforms/core";
 import { IUISchemaToolkit } from "./interfaces";
 import { ExceptionErrorObject, execute, prepare } from "./actions";
-import _ from "lodash";
+import _, { set } from "lodash";
 import { ErrorObject } from "ajv";
 
 type SetStatusCallback = (status: any) => void;
@@ -13,11 +13,11 @@ export class ActionsMiddleware
 {
     setStatusCallback:SetStatusCallback;
     setErrorsCallback:SetErrorsCallback;
-    executionStatuesCallback?:ExecutionStatuesCallback;
-    constructor(setStatusCallback:SetStatusCallback, setErrorsCallback:SetErrorsCallback, executionStatuesCallback?:ExecutionStatuesCallback) {
+    executionStatusCallback:ExecutionStatuesCallback;
+    constructor(setStatusCallback:SetStatusCallback, setErrorsCallback:SetErrorsCallback, executionStatusCallback:ExecutionStatuesCallback) {
         this.setStatusCallback = setStatusCallback;
         this.setErrorsCallback = setErrorsCallback;
-        this.executionStatuesCallback = executionStatuesCallback;
+        this.executionStatusCallback = executionStatusCallback;
     }
     async = (state: JsonFormsCore, 
         action: CoreActions, 
@@ -30,16 +30,14 @@ export class ActionsMiddleware
                 _.set(state, "actions", actionsToExecute);
                 
                 const afterReducer = defaultReducer(state, action);             
-                    
+                this.executionStatusCallback("pending");    
                 (async () => { 
-                    this.executionStatuesCallback && this.executionStatuesCallback("pending");
-                
                     try{
                         const actionsToExecute = _.get(state, "actions");
                         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                         const result = await execute("on-init", actionsToExecute!, afterReducer);
                         this.setStatusCallback(result.data);
-                        this.executionStatuesCallback && this.executionStatuesCallback("fulfilled");
+                        this.executionStatusCallback("fulfilled");
                     }
                     catch(e){
                         if(e instanceof ExceptionErrorObject)
@@ -47,7 +45,7 @@ export class ActionsMiddleware
                         else
                             this.setErrorsCallback([{ instancePath:"/", keyword: 'action error', schemaPath: "(action)", params: {}, message: `call action error: ${(e as any).message}` }]);
                     
-                        this.executionStatuesCallback && this.executionStatuesCallback("failed");
+                        this.executionStatusCallback("failed");
                     }
                 })();
                 return afterReducer;
@@ -58,15 +56,14 @@ export class ActionsMiddleware
                 // execute actions and set new state  
                 const afterReducer = defaultReducer(state, action);             
                     
+                this.executionStatusCallback("pending");
                 (async () => { 
-                    this.executionStatuesCallback && this.executionStatuesCallback("pending");
-                
                     try{
                         const actionsToExecute = _.get(state, "actions");
                         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                         const result = await execute("on-change", actionsToExecute!, afterReducer, state);
                         this.setStatusCallback(result.data);
-                        this.executionStatuesCallback && this.executionStatuesCallback("fulfilled");
+                        this.executionStatusCallback("fulfilled");
                     }
                     catch(e){
                         if(e instanceof ExceptionErrorObject)
@@ -74,7 +71,7 @@ export class ActionsMiddleware
                         else
                             this.setErrorsCallback([{ instancePath:"/", keyword: 'action error', schemaPath: "(action)", params: {}, message: `call action error: ${(e as any).message}` }]);
                     
-                        this.executionStatuesCallback && this.executionStatuesCallback("failed");
+                        this.executionStatusCallback("failed");
                     }
                 })();
                 return afterReducer;
@@ -84,8 +81,15 @@ export class ActionsMiddleware
         }
     }
 
-    public static actionsMiddleware = (setStatusCallback:SetStatusCallback, setErrorsCallback:SetErrorsCallback, executionStatuesCallback?:ExecutionStatuesCallback) => {
-        return new ActionsMiddleware(setStatusCallback, setErrorsCallback, executionStatuesCallback).async;
+    public static actionsMiddleware = (setStatusCallback:SetStatusCallback, setErrorsCallback:SetErrorsCallback,executionStatusCallback:ExecutionStatuesCallback) => {
+        return new ActionsMiddleware(setStatusCallback, setErrorsCallback,executionStatusCallback).async;
     }
+}
+
+const setExecutionStatus = (state: JsonFormsCore, status: ExecutionStatus) => {
+    _.set(state, "executionStatus", status);
+}
+export const getExecutionStatus = (state: JsonFormsCore): ExecutionStatus => {
+    return _.get(state, "executionStatus")?? "pending";
 }
 

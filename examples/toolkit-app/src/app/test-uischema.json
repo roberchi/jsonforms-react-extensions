@@ -29,7 +29,7 @@
       "id": "filter-employees",
       "scope": "#/properties/filtered_employees",
       "kind": "calc",
-      "behavior": ["on-change", "on-init"],
+      "behavior": ["on-change"],
       "script": "return employees.filter(e=>filter === undefined || filter === '' || e.name?.includes(filter) || e.surname?.includes(filter));",
       "depends": ["#/properties/employees", "#/properties/filter"]
     },

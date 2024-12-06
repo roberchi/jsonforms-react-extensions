@@ -1,6 +1,6 @@
 import { JsonFormsCore } from "@jsonforms/core";
 import { EvalAction, ExceptionErrorObject } from "../actions";
-import { IAction } from "../interfaces";
+import { IAction, MaybePromise } from "../interfaces";
 import _ from "lodash";
 import {allowedGlobals, JsEval, prepareParams} from "./jsEval"
 
@@ -8,7 +8,7 @@ export interface IActionCalc extends IAction {
     script: string;
 }
 
-export const calcAction:EvalAction = async (act: IAction, state:JsonFormsCore) : Promise<any> => {
+export const calcAction:EvalAction = (act: IAction, state:JsonFormsCore) : MaybePromise<any> => {
     // Creare un'istanza di JsEval con un timeout di 2 secondi
     const jsEval = new JsEval(allowedGlobals, 2000);
     const data = _.cloneDeep(state.data);
@@ -21,7 +21,7 @@ export const calcAction:EvalAction = async (act: IAction, state:JsonFormsCore) :
           throw new ExceptionErrorObject({ instancePath: act.scope.replace('#/properties/', ''), keyword: 'script error', schemaPath: act.id??"(action)", params: {}, message: `script error: ${e}` },
           e as Error);
       }
-    return Promise.resolve(data);
+    return data;
 }
 
 

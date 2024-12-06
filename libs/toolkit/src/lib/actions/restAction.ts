@@ -1,6 +1,6 @@
 import { JsonFormsCore } from '@jsonforms/core';
 import { EvalAction, ExceptionErrorObject } from '../actions';
-import { IAction } from '../interfaces';
+import { IAction, MaybePromise } from '../interfaces';
 import { prepareParams, JsEval, allowedGlobals } from './jsEval';
 import { ErrorObject } from 'ajv';
 import _ from 'lodash';
@@ -29,7 +29,7 @@ export const restAction: EvalAction = async (act: IAction, state: JsonFormsCore)
   const headers = prepareHeaders(restAct, state);
 
   // TODO: authenticate rest client
-
+    
   const result = await fetch(url, {
     method: restAct.method,
     body: body ? JSON.stringify(body) : null,
@@ -41,12 +41,12 @@ export const restAction: EvalAction = async (act: IAction, state: JsonFormsCore)
     const dataFromService = await result.json();
     // map response to state
     const mappedData = mapResponse(restAct, act, data, dataFromService);
-    _.set(data, act.scope.substring('#/properties/'.length).replace('/', '.'), dataFromService);
+    _.set(data, act.scope.substring('#/properties/'.length).replace('/', '.'), mappedData);
   }
   else {
     throw new ExceptionErrorObject({ instancePath: act.scope.replace('#/properties/', ''), keyword: 'http error', schemaPath: act.id??"(action)", params: {}, message: `call rest service error: ${result.status}` });
   };
-  return data;
+  return data;  
 };
 
 const prepareHeaders = (restAct: IActionRest, state: JsonFormsCore): any => {
@@ -64,17 +64,16 @@ const prepareHeaders = (restAct: IActionRest, state: JsonFormsCore): any => {
 }
 
 const mapResponse = (restAct: IActionRest, act: IAction, state: JsonFormsCore, dataFromService: any): any => {
-  let mappedData = dataFromService;
   const jsEval = new JsEval(allowedGlobals, 2000);
   if (restAct.mapResponseScript) {
     try {
       const params = {response:dataFromService};
-      mappedData = jsEval.execute(restAct.mapResponseScript, params);
+      return jsEval.execute(restAct.mapResponseScript, params);
     } catch (e) {
       throw new Error(`map response script error: ${e}`);
     }
   }
-  return mappedData;
+  return dataFromService;
 }
 
 const prepareBody = (restAct: IActionRest, state: JsonFormsCore): any => {

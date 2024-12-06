@@ -3,7 +3,7 @@ import { calcAction } from './lib/actions/calcAction';
 import { restAction } from './lib/actions/restAction';
 
 export * from './lib/toolkit';
-export {ActionsMiddleware} from './lib/actionsMiddleware';
+export {ActionsMiddleware, getExecutionStatus} from './lib/actionsMiddleware';
 export {AsyncMiddleware} from './lib/asyncMiddleware';
 
 
@@ -14,6 +14,7 @@ registerAction('if-then-else', notYetImplemented)
 registerAction('switch', notYetImplemented)
 registerAction('sequence', notYetImplemented)
 registerAction('for-each', notYetImplemented)
+registerAction('rise-event-on-array-change', notYetImplemented)
 
 
 

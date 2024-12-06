@@ -1,11 +1,11 @@
 import { JsonFormsCore } from "@jsonforms/core";
-import { actionBehavior, IAction, IActionBase, IActionRef, IActionToExecute } from "./interfaces";
+import { actionBehavior, IAction, IActionBase, IActionRef, IActionToExecute, MaybePromise } from "./interfaces";
 import { dependency, depNode, getActionDepends } from "./utils/dependency";
 import _ from "lodash";
 import { ErrorObject } from "ajv";
 
 // register actions
-export type EvalAction = (act: IAction, state: JsonFormsCore) => Promise<any>;
+export type EvalAction = (act: IAction, state: JsonFormsCore) => MaybePromise<any>;
 const actions: Map<string, EvalAction> = new Map();
 export const registerAction = (actType:string, evalAct:EvalAction) => actions.set(actType, evalAct);
 
@@ -53,8 +53,9 @@ export const execute = async (behavior:actionBehavior, actions:IActionToExecute,
         case "on-event":{
             const newState = _.cloneDeep(afterDefaultReducer);
             for(const act of actionsToExecute){
-                const  data = await evalAction(act, newState);
-                newState.data = data;
+                const value = evalAction(act, newState);
+                newState.data = await value;
+
             }
             return newState; 
         }
@@ -90,13 +91,11 @@ const isStateChanged = (act: IAction, afterData: any, beforeData: any): boolean 
 }
 
 // evaluate the action
-const evalAction = async (act: IAction, state: JsonFormsCore): Promise<any> => {
+const evalAction = (act: IAction, state: JsonFormsCore): MaybePromise<any> => {
     console.log(`Action ${act.kind} is executing`);
     const evalAct = actions.get(act.kind);
     if(!evalAct) throw new Error(`Action ${act.kind} not found`);
-    const data = await evalAct(act, state);
-    console.log(`Action ${act.kind} is executed`);
-    return data;
+    return evalAct(act, state);
 };
 
 function hasBehavior(behavior: actionBehavior | actionBehavior[], checkBehavior: actionBehavior): unknown {
@@ -107,9 +106,9 @@ function hasBehavior(behavior: actionBehavior | actionBehavior[], checkBehavior:
 }
 
 // used to register action not yet implemented
-export const notYetImplemented:EvalAction = (act:IAction, state:JsonFormsCore):Promise<JsonFormsCore> =>{
+export const notYetImplemented:EvalAction = (act:IAction, state:JsonFormsCore):MaybePromise<JsonFormsCore> =>{
     console.log(`Action ${act.kind}, not yet implemented`);
-    return Promise.resolve(state);
+    return state.data;
 }
 
 export class ExceptionErrorObject extends Error{
