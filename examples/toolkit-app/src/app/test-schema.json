@@ -55,6 +55,9 @@
     "countX2": {
       "type": "integer",
       "minimum":0
+    },
+    "outcome": {
+      "type": "string"
     }
   }
 }

@@ -2,6 +2,7 @@ import { notYetImplemented, registerAction } from './lib/actions';
 import { calcAction } from './lib/actions/calcAction';
 import { ifAction, ifActionPrpeare } from './lib/actions/ifAction';
 import { restAction } from './lib/actions/restAction';
+import { setAction } from './lib/actions/setAction';
 
 export * from './lib/toolkit';
 export {ActionsMiddleware, getExecutionStatus} from './lib/actionsMiddleware';
@@ -15,6 +16,7 @@ registerAction('switch', notYetImplemented)
 registerAction('sequence', notYetImplemented)
 registerAction(['for-each','foreach'], notYetImplemented)
 registerAction('rise-event-on-array-change', notYetImplemented)
+registerAction('set', setAction)
 
 
 

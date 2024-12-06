@@ -32,7 +32,7 @@ const resolveRef = (action:IActionBase, allActions:IAction[]): IAction =>{
 
 const prepareInvariantAction:PrepareAction = (act:IAction):IAction => act;
 
-export const prepareActions = (acts:IAction[], refActions:IAction[]):IAction[] => sortByActionDependencies(acts.map(act => actions.get(act.kind)?.prepareAction?.(act, refActions)??act)).map(act => resolveRef(act, refActions))
+export const prepareActions = (acts:IAction[], refActions:IAction[]):IAction[] => acts?sortByActionDependencies(acts.map(act => actions.get(act.kind)?.prepareAction?.(act, refActions)??act)).map(act => resolveRef(act, refActions)):[]
 
 // prepare action on init
 export const prepare = (acts:IActionToExecute): IActionToExecute =>{
@@ -91,7 +91,7 @@ export const execute = async (behavior:actionBehavior, actions:IActionToExecute,
 
 
 // evaluate if the action dependencies has been changed
-const isStateChanged = (act: IAction, afterData: any, beforeData: any): boolean => {    
+export const isStateChanged = (act: IAction, afterData: any, beforeData: any): boolean => {    
     if(!act.depends) return true;
     const depends = _.isArray(act.depends)? act.depends : [act.depends];
     let res = false;
@@ -106,7 +106,7 @@ const isStateChanged = (act: IAction, afterData: any, beforeData: any): boolean 
 }
 
 // evaluate the action
-const evalAction = (act: IAction, state: JsonFormsCore): MaybePromise<any> => {
+export const evalAction = (act: IAction, state: JsonFormsCore): MaybePromise<any> => {
     console.log(`Action ${act.kind} is executing`);
     const registration = actions.get(act.kind);
     if(!registration) throw new Error(`Action ${act.kind} not found`);

@@ -1,5 +1,5 @@
 import { JsonFormsCore } from "@jsonforms/core";
-import { EvalAction, ExceptionErrorObject, prepareActions } from "../actions";
+import { evalAction, EvalAction, ExceptionErrorObject, isStateChanged, prepareActions } from "../actions";
 import { IAction, MaybePromise } from "../interfaces";
 import _ from "lodash";
 import {allowedGlobals, JsEval, prepareParams} from "./jsEval"
@@ -18,17 +18,18 @@ export const ifActionPrpeare = (act: IAction, refs:IAction[]): IAction => {
 }
 
 export const ifAction:EvalAction = async (act: IAction, state:JsonFormsCore) : Promise<any> => {
-    // Creare un'istanza di JsEval con un timeout di 2 secondi
+    console.log("ifAction");
+
+    let data;
     const jsEval = new JsEval(allowedGlobals, 2000);
-    const data = _.cloneDeep(state.data);
       try {
         // add to the state the dependnet properties that coluld be missing
-        const params = prepareParams(data, act);
+        const params = prepareParams(state.data, act);
         const result = jsEval.execute("return " + (act as IActionIfThenElse).condition, params);
         if(result === true)
-            await evalActionGroup((act as IActionIfThenElse).then, state, data);
+            data = await evalActionGroup((act as IActionIfThenElse).then, state);
         else
-            await evalActionGroup((act as IActionIfThenElse).else, state, data);
+            data = await evalActionGroup((act as IActionIfThenElse).else, state);
       } catch (e) {
           throw new ExceptionErrorObject({ instancePath: act.scope.replace('#/properties/', ''), keyword: 'script error', schemaPath: act.id??"(action)", params: {}, message: `script error: ${e}` },
           e as Error);
@@ -37,14 +38,13 @@ export const ifAction:EvalAction = async (act: IAction, state:JsonFormsCore) : P
 }
 
 
-async function evalActionGroup(acts: IAction[], state: JsonFormsCore, data: any) {
-    for (const a of acts) {
-        const value = evalAction(a, state);
-        data.data = await value;
-    }
-}
-
-function evalAction(a: IAction, state: JsonFormsCore) {
-    throw new Error("Function not implemented.");
+async function evalActionGroup(acts: IAction[], state: JsonFormsCore): Promise<any>{
+    const newState = _.cloneDeep(state);
+    for(const act of acts){
+        // TODO: to emprove performance if(isStateChanged(act, newState.data, state.data)) 
+        const data = await evalAction(act, newState);
+        newState.data = data;
+    };
+    return newState.data;
 }
 

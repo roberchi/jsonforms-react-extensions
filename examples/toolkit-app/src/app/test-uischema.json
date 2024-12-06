@@ -12,6 +12,11 @@
       },
       {
         "$ref": "get-employees"
+      },
+      {
+        "scope": "#/properties/outcome",
+        "kind": "set",
+        "value": "FETCH..."
       }
     ],
     "on-change": [
@@ -21,6 +26,27 @@
         "script": "return filtered_employees && filtered_employees.length;",
         "depends": [
           "#/properties/filtered_employees"
+        ]
+      },
+      {
+        "kind": "if",
+        "condition": "count > 2",
+        "then": [
+          {
+            "scope": "#/properties/outcome",
+            "kind": "set",
+            "value": "TOO MANY EMPLOYEES"
+          }
+        ],
+        "else": [
+          {
+            "scope": "#/properties/outcome",
+            "kind": "set",
+            "value": "FEW EMPLOYEES"
+          }
+        ],
+        "depends": [
+          "#/properties/count"
         ]
       },
       {
@@ -131,41 +157,48 @@
             "readonly": false
           }
         },
-        {
-          "type": "Control",
-          "scope": "#/properties/all_employees",
-          "label": "All employees",
-          "options": {
-            "readonly": true
-          }
-        },
+  
         {
           "type": "Control",
           "scope": "#/properties/filtered_employees"
         },
+        
         {
-          "type": "Control",
-          "label": "Upper case filter",
-          "scope": "#/properties/upper_filter",
-          "options": {
-            "readonly": true
-          }
-        },
-        {
-          "type": "Control",
-          "label": "Total employees",
-          "scope": "#/properties/count",
-          "options": {
-            "readonly": true
-          }
-        },
-        {
-          "type": "Control",
-          "label": "",
-          "scope": "#/properties/countX2",
-          "options": {
-            "readonly": true
-          }
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "label": "Upper case filter",
+              "scope": "#/properties/upper_filter",
+              "options": {
+                "readonly": true
+              }
+            },
+            {
+              "type": "Control",
+              "label": "Total employees",
+              "scope": "#/properties/count",
+              "options": {
+                "readonly": true
+              }
+            },
+            {
+              "type": "Control",
+              "label": "",
+              "scope": "#/properties/countX2",
+              "options": {
+                "readonly": true
+              }
+            },
+            {
+              "type": "Control",
+              "label": "outcome",
+              "scope": "#/properties/outcome",
+              "options": {
+                "readonly": true
+              }
+            }
+          ]
         }
       ]
     }
