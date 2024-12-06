@@ -3,6 +3,7 @@ import { calcAction } from './lib/actions/calcAction';
 import { ifAction, ifActionPrpeare } from './lib/actions/ifAction';
 import { restAction } from './lib/actions/restAction';
 import { setAction } from './lib/actions/setAction';
+import { switchAction, switchActionPrpeare } from './lib/actions/switchAction';
 
 export * from './lib/toolkit';
 export {ActionsMiddleware, getExecutionStatus} from './lib/actionsMiddleware';
@@ -12,7 +13,7 @@ export {ActionsMiddleware, getExecutionStatus} from './lib/actionsMiddleware';
 registerAction('rest', restAction);
 registerAction(['calc', 'calculus'], calcAction);
 registerAction(['if-then-else','if'], ifAction, ifActionPrpeare)
-registerAction('switch', notYetImplemented)
+registerAction('switch', switchAction, switchActionPrpeare)
 registerAction('sequence', notYetImplemented)
 registerAction(['for-each','foreach'], notYetImplemented)
 registerAction('rise-event-on-array-change', notYetImplemented)

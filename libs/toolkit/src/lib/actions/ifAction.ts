@@ -1,5 +1,5 @@
 import { JsonFormsCore } from "@jsonforms/core";
-import { evalAction, EvalAction, ExceptionErrorObject, isStateChanged, prepareActions } from "../actions";
+import { evalAction, EvalAction, evalActionGroup, ExceptionErrorObject, isStateChanged, prepareActions } from "../actions";
 import { IAction, MaybePromise } from "../interfaces";
 import _ from "lodash";
 import {allowedGlobals, JsEval, prepareParams} from "./jsEval"
@@ -18,8 +18,6 @@ export const ifActionPrpeare = (act: IAction, refs:IAction[]): IAction => {
 }
 
 export const ifAction:EvalAction = async (act: IAction, state:JsonFormsCore) : Promise<any> => {
-    console.log("ifAction");
-
     let data;
     const jsEval = new JsEval(allowedGlobals, 2000);
       try {
@@ -35,16 +33,5 @@ export const ifAction:EvalAction = async (act: IAction, state:JsonFormsCore) : P
           e as Error);
       }
     return data;
-}
-
-
-async function evalActionGroup(acts: IAction[], state: JsonFormsCore): Promise<any>{
-    const newState = _.cloneDeep(state);
-    for(const act of acts){
-        // TODO: to emprove performance if(isStateChanged(act, newState.data, state.data)) 
-        const data = await evalAction(act, newState);
-        newState.data = data;
-    };
-    return newState.data;
 }
 

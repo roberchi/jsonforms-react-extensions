@@ -7,8 +7,7 @@ export type actionBehavior = 'refs' | 'on-init' | 'on-change' | 'on-event';
 
 
 export interface IActionBase{
-    id?: string;
-    behavior: actionBehavior | (actionBehavior)[];    
+    id?: string;   
 }
 export interface IActionRef extends IActionBase {
     $ref: string;

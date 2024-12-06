@@ -23,8 +23,8 @@ const resolveRef = (action:IActionBase, allActions:IAction[]): IAction =>{
     if(_.has(action, "$ref")){
         const refAction = _.find(allActions, (act)=> act.id === (action as IActionRef).$ref);
         if(!refAction) throw new Error(`Invalid or missing action reference ${(action as IActionRef).$ref}`);
-        const copyAction = _.omit(refAction, ["id"]);
-        return {...action, ...copyAction};
+        const refToCopy = _.omit(refAction, ["id"]);
+        return {...refToCopy, ...action}; // override 
     }
     else
         return action as IAction;
@@ -137,3 +137,15 @@ export class ExceptionErrorObject extends Error{
     }
     
 }
+
+
+export const evalActionGroup = async (acts: IAction[], state: JsonFormsCore): Promise<any> =>{
+    const newState = _.cloneDeep(state);
+    for(const act of acts){
+        // TODO: to emprove performance if(isStateChanged(act, newState.data, state.data)) 
+        const data = await evalAction(act, newState);
+        newState.data = data;
+    };
+    return newState.data;
+}
+

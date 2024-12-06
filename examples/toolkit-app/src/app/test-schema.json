@@ -56,7 +56,11 @@
       "type": "integer",
       "minimum":0
     },
-    "outcome": {
+    "_if": {
+      "type": "string"
+    },
+    
+    "_switch": {
       "type": "string"
     }
   }

@@ -14,7 +14,7 @@
         "$ref": "get-employees"
       },
       {
-        "scope": "#/properties/outcome",
+        "scope": "#/properties/_if",
         "kind": "set",
         "value": "FETCH..."
       }
@@ -33,14 +33,14 @@
         "condition": "count > 2",
         "then": [
           {
-            "scope": "#/properties/outcome",
+            "scope": "#/properties/_if",
             "kind": "set",
             "value": "TOO MANY EMPLOYEES"
           }
         ],
         "else": [
           {
-            "scope": "#/properties/outcome",
+            "scope": "#/properties/_if",
             "kind": "set",
             "value": "FEW EMPLOYEES"
           }
@@ -49,6 +49,27 @@
           "#/properties/count"
         ]
       },
+      {
+        "kind":"switch",
+        "depends":"#/properties/filter",
+        "case":{
+          "Alice":[{
+            "scope": "#/properties/_switch",
+            "kind": "set",
+            "value": "Alice is selected"
+          }],
+          "Bob":[{
+            "scope": "#/properties/_switch",
+            "kind": "set",
+            "value": "Bob is selected"
+          }]
+        },
+        "default":[{
+            "scope": "#/properties/_switch",
+            "kind": "set",
+            "value": "Default is selected"
+          }]
+       },
       {
         "scope": "#/properties/count",
         "kind": "calc",
@@ -122,6 +143,12 @@
         "method": "get",
         "url": "http://localhost:3001/employees",
         "mapResponseScript": "response.forEach(e=> e.id = parseInt(e.id)); return response;"
+      },
+      {
+        "id":"set-switch",
+        "scope": "#/properties/switch",
+        "kind": "set",
+        "value": ""
       }
     ]
   },
@@ -192,8 +219,16 @@
             },
             {
               "type": "Control",
-              "label": "outcome",
-              "scope": "#/properties/outcome",
+              "label": "if outcome",
+              "scope": "#/properties/_if",
+              "options": {
+                "readonly": true
+              }
+            },
+            {
+              "type": "Control",
+              "label": "switch outcome",
+              "scope": "#/properties/_switch",
               "options": {
                 "readonly": true
               }
