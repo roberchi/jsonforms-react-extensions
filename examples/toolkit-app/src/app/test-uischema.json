@@ -11,11 +11,7 @@
         ]
       },
       {
-        "scope": "#/properties/employees",
-        "kind": "rest",
-        "method": "get",
-        "url": "http://localhost:3001/employees",
-        "mapResponseScript": "response.forEach(e=> e.id = parseInt(e.id)); return response;"
+        "$ref": "get-employees"
       }
     ],
     "on-change": [
@@ -92,7 +88,16 @@
         "method": "delete"
       }
     ],
-    "refs": []
+    "refs": [
+      {
+        "id": "get-employees",
+        "scope": "#/properties/employees",
+        "kind": "rest",
+        "method": "get",
+        "url": "http://localhost:3001/employees",
+        "mapResponseScript": "response.forEach(e=> e.id = parseInt(e.id)); return response;"
+      }
+    ]
   },
   "elements": [
     {
