@@ -21,12 +21,12 @@ const resolveRef = (action:IActionBase, allActions:IAction[]): IAction =>{
 }
 
 // prepare action on init
-export const prepare = (acts:IAction[]): IActionToExecute =>{
+export const prepare = (acts:IActionToExecute): IActionToExecute =>{
     const actionsToExecute:IActionToExecute = {
-        "not-execute": sortByActionDependencies(acts.filter(act => hasBehavior(act.behavior, "not-execute")).map(act => resolveRef(act, acts))),
-        "on-change": sortByActionDependencies(acts.filter(act => hasBehavior(act.behavior, "on-change")).map(act => resolveRef(act, acts))),
-        "on-event": sortByActionDependencies(acts.filter(act => hasBehavior(act.behavior, "on-event")).map(act => resolveRef(act, acts))),
-        "on-init": sortByActionDependencies(acts.filter(act => hasBehavior(act.behavior, "on-init")).map(act => resolveRef(act, acts))),
+        "refs": acts.refs,
+        "on-change": sortByActionDependencies(acts["on-change"]).map(act => resolveRef(act, acts.refs)),
+        "on-event": sortByActionDependencies(acts["on-event"]).map(act => resolveRef(act, acts.refs)),
+        "on-init": sortByActionDependencies(acts["on-init"]).map(act => resolveRef(act, acts.refs)),
     }
     return actionsToExecute;
 }
@@ -47,7 +47,7 @@ export const execute = async (behavior:actionBehavior, actions:IActionToExecute,
     const actionsToExecute = _.get(actions, behavior);
     
     switch(behavior){
-        case "not-execute":
+        case "refs":
             return afterDefaultReducer; // do nothing
         case "on-init":
         case "on-event":{

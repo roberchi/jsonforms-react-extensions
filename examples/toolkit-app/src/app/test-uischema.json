@@ -1,55 +1,99 @@
 {
-  "type": "VerticalLayout", 
-   "actions":[
-    {
-      "scope": "#/properties/count",
-      "kind": "calc",
-      "behavior": ["on-change", "on-init"],
-      "script": "return filtered_employees && filtered_employees.length;",
-      "depends": ["#/properties/filtered_employees"]
-    },
-    {
-      "scope": "#/properties/employees",
-      "kind": "rest",
-      "behavior": "on-init",
-      "method": "get",
-      "url": "http://localhost:3001/employees",
-      "mapResponseScript": "response.forEach(e=> e.id = parseInt(e.id)); return response;"
-    },
-    {
-      "id": "upper-filter",
-      "scope": "#/properties/upper_filter",
-      "kind": "calc",
-      "behavior": "on-change",
-      "script": "return filter && filter.toUpperCase();",
-      "depends": ["#/properties/filter"]
-    },
-    
-    {
-      "id": "filter-employees",
-      "scope": "#/properties/filtered_employees",
-      "kind": "calc",
-      "behavior": ["on-change"],
-      "script": "return employees.filter(e=>filter === undefined || filter === '' || e.name?.includes(filter) || e.surname?.includes(filter));",
-      "depends": ["#/properties/employees", "#/properties/filter"]
-    },
-    {
-      "id": "employees-changed",
-      "kind": "rise-event-on-array-change",
-      "behavior": ["on-change"],
-      "events": ["delete"],
-      "depends": ["#/properties/employees"]
-    },
-    {
-      "id": "update-employees",
-      "kind": "rest",
-      "behavior": ["on-event"],
-      "eventPattern": "employees-changed/delete/{id}",
-      "url": "http://localhost:3001/employees/{id}",
-      "method": "delete"
-    }
-
-  ],
+  "type": "VerticalLayout",
+  "actions": {
+    "on-init": [
+      {
+        "scope": "#/properties/count",
+        "kind": "calc",
+        "script": "return filtered_employees && filtered_employees.length;",
+        "depends": [
+          "#/properties/filtered_employees"
+        ]
+      },
+      {
+        "scope": "#/properties/employees",
+        "kind": "rest",
+        "method": "get",
+        "url": "http://localhost:3001/employees",
+        "mapResponseScript": "response.forEach(e=> e.id = parseInt(e.id)); return response;"
+      }
+    ],
+    "on-change": [
+      {
+        "scope": "#/properties/count",
+        "kind": "calc",
+        "script": "return filtered_employees && filtered_employees.length;",
+        "depends": [
+          "#/properties/filtered_employees"
+        ]
+      },
+      {
+        "scope": "#/properties/count",
+        "kind": "calc",
+        "script": "return filtered_employees && filtered_employees.length;",
+        "depends": [
+          "#/properties/filtered_employees"
+        ]
+      },
+      {
+        "scope": "#/properties/countX2",
+        "kind": "calc",
+        "script": "return count * 2;",
+        "depends": [
+          "#/properties/count"
+        ]
+      },
+      {
+        "id": "upper-filter",
+        "scope": "#/properties/upper_filter",
+        "kind": "calc",
+        "script": "return filter && filter.toUpperCase();",
+        "depends": [
+          "#/properties/filter"
+        ]
+      },
+      {
+        "id": "filter-employees",
+        "scope": "#/properties/filtered_employees",
+        "kind": "calc",
+        "script": "return employees.filter(e=>filter === undefined || filter === '' || e.name?.includes(filter) || e.surname?.includes(filter));",
+        "depends": [
+          "#/properties/employees",
+          "#/properties/filter"
+        ]
+      },
+      {
+        "id": "employees-changed",
+        "kind": "rise-event-on-array-change",
+        "events": [
+          "delete"
+        ],
+        "depends": [
+          "#/properties/employees"
+        ]
+      }
+    ],
+    "on-event": [
+      {
+        "scope": "#/properties/employees",
+        "kind": "rest",
+        "method": "get",
+        "url": "http://localhost:3001/employees",
+        "mapResponseScript": "response.forEach(e=> e.id = parseInt(e.id)); return response;",
+        "depends": [
+          "employees-changed"
+        ]
+      },
+      {
+        "id": "update-employees",
+        "kind": "rest",
+        "eventPattern": "employees-changed/delete/{id}",
+        "url": "http://localhost:3001/employees/{id}",
+        "method": "delete"
+      }
+    ],
+    "refs": []
+  },
   "elements": [
     {
       "type": "VerticalLayout",
@@ -78,7 +122,7 @@
         {
           "type": "Control",
           "scope": "#/properties/employees",
-          "options":{
+          "options": {
             "readonly": false
           }
         },
@@ -86,7 +130,7 @@
           "type": "Control",
           "scope": "#/properties/all_employees",
           "label": "All employees",
-          "options":{
+          "options": {
             "readonly": true
           }
         },

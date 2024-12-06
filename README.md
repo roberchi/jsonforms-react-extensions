@@ -8,41 +8,50 @@ The Action framework allow also to extends the basic action libaray to new custo
 ### Actions and UI Schema
 This framework uses and extends UI-Schema to allow you to configure the actions that you need to manipulate the forms data based on your business logic.
 
-Actions are configured as part of the root element in the ui schema, using **action** object property:
+Actions are configured as part of the root element in the ui schema, using **actions** object property:
 
 ``` json
 {
   "type": "VerticalLayout", 
-   "actions":[
-    {
-      "scope": "#/properties/count",
-      "kind": "calc",
-      "behavior": ["on-change", "on-init"],
-      "script": "return filtered_employees && filtered_employees.length;",
-      "depends": ["#/properties/filtered_employees"]
+   "actions":{
+      "on-init":[
+      {
+        "scope": "#/properties/count",
+        "kind": "calc",
+        "script": "return filtered_employees && filtered_employees.length;",
+        "depends": ["#/properties/filtered_employees"]
+      },
+      ...
+      ],
+      "on-change":[
+        ...
+      ],
+      "on-event":[
+        ...
+      ],
+      "refs":[
+        ...
+      ]
     },
-    ...
-    ],
     "elements": [
         ...
     ]
 }
 
 ```
+The actions object has 4 properties that rapresent the behavior of the actions' execution 
+    - `'refs'`: The action is not executed. This behavior is used only to create an action to be referenced in other behavior using $ref.
+    - `'on-init'`: The action is executed on initialization.
+    - `'on-change'`: The action is executed on change.
+    - `'on-event'`: The action is executed on a specific event.
+
+
 ### Action Configuration
 
 An action in this context is configured by the following properties:
 
 
 - `id`: An optional identifier for the action, it is requered in some action or if you what to refferr to it.
-- `behavior`: The behavior of the action, which can be a single `actionBehavior` or an array of `actionBehavior`, e.g. `'on-init'` or `['on-init', 'on-change']`.
-
-Defines when the action should be executed. Possible values are:
-    - `'not-execute'`: The action is not executed. This behavior is used only to create an action to be referenced in other behavior using $ref.
-    - `'on-init'`: The action is executed on initialization.
-    - `'on-change'`: The action is executed on change.
-    - `'on-event'`: The action is executed on a specific event.
-
 - `$ref`: A reference by id to another action.
 - `scope`: The scope within which the action is executed, this is the form property that the action should change when executed.
 - `kind`: The kind of action, which can be either `'rest'`, `'calc'` or all registered actions.
@@ -122,12 +131,7 @@ road map without priorities:
 - if/than/else action
 - switch/case action
 - sequance action gropup
-- refactoring behavior
-  "actions":{
-    "on-init":[... actions ...],
-    "on-change": [... actions ...],
-    "on-event": [... actions ...],
-    "refs": [... actions ...] <<== not-executed
+
 
 . other extensions:
   - dynamic control labels in the forms
