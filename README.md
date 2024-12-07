@@ -143,9 +143,6 @@ This action when fired allow to set a property to a specific value.
   "depends": "#/properties/setcolor"
 }
 ```
-### COPY Action
-
-kind: copy
 
 ### COPY Action
 
