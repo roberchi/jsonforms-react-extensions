@@ -1,7 +1,78 @@
 # Jsonforms React (or not) Extensions
-The goal of the toolkit library is to enhance the [JsonForms] (https://jsonforms.io/) framework by providing additional middleware capabilities. This allows developers to implement custom business logic and UI behaviors within their forms, including the ability to call external services. By leveraging this toolkit, JsonForms can be transformed into a more powerful low-code/no-code platform, enabling more dynamic and responsive form interactions.
+
+The goal of the toolkit library is to enhance the [JsonForms](https://jsonforms.io/) framework by providing additional middleware capabilities. This allows developers to implement custom business logic and UI behaviors within their forms, including the ability to call external services. By leveraging this toolkit, JsonForms can be transformed into a more powerful low-code/no-code platform, enabling more dynamic and responsive form interactions.
+
+## Installation
+
+To install the JsonForms React Extensions, use the following command:
+
+```bash
+npm install jsonforms-react-extensions
+```
+
+## Usage
+
+To use the JsonForms React Extensions in your project, import the necessary components and middleware:
+
+```TypeScript
+import { JsonForms } from '@jsonforms/react';
+import { ActionsMiddleware } from 'jsonforms-react-extensions';
+```
+
+Then, integrate the middleware into your JsonForms component as shown in the example above.
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request on GitHub.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ## Action Middleware
+
+This toolkit is implemented has a JsonForms middleware to be used in the JsonForm core component [see demo app for details](examples/toolkit-app/src/app/app.tsx):
+
+```TypeScript
+export function App() {
+
+  const [data, setData] = useState(test_data);
+  const [errors, setErrors] = useState<ErrorObject[]>();
+  const [status, setStatus] = useState<"pending"|"fulfilled"|"failed">("fulfilled");
+
+  // create action middleware
+  const actionMiddleware = useMemo(() => ActionsMiddleware.actionsMiddleware(setData, setErrors,(status)=>setStatus(status)), [setData, setErrors]);
+
+  return (
+    <StyledApp>
+      <div className='App'>
+      {status === "pending" && <LinearProgress></LinearProgress>}
+      <JsonForms
+        schema={test_schema}
+        uischema={test_uischema}
+        data={data}
+        renderers={renderers}
+        cells={materialCells}
+        middleware={actionMiddleware} 
+        onChange={(state) => {
+          setErrors(state.errors);
+          setData(state.data);
+        }
+        }
+      />
+      <br></br>
+      <div>{JSON.stringify(data)}</div>
+      <ul>{errors?.map((e, i)=><li key={i}>{e.schemaPath} {e.message}</li>)}</ul>
+    </div>
+
+    </StyledApp>
+  );
+}
+
+```
+
+
+
 The Action Middleware implements the extension of the JsonForms library to support the executon of Action to dynamically manupulate the data of the form.
 The Action framework allow also to extends the basic action libaray to new custom actions you need.
 
@@ -40,10 +111,10 @@ Actions are configured as part of the root element in the ui schema, using **act
 
 ```
 The actions object has 4 properties that rapresent the behavior of the actions' execution 
-    - `'refs'`: The action is not executed. This behavior is used only to create an action to be referenced in other behavior using $ref.
-    - `'on-init'`: The action is executed on initialization.
-    - `'on-change'`: The action is executed on change.
-    - `'on-event'`: The action is executed on a specific event.
+- `'refs'`: The action is not executed. This behavior is used only to create an action to be referenced in other behavior using $ref.
+- `'on-init'`: The action is executed on initialization.
+- `'on-change'`: The action is executed on change.
+- `'on-event'`: The action is executed on a specific event.
 
 
 ### Action Configuration
@@ -60,7 +131,7 @@ An action in this context is configured by the following properties:
 
 The action are registered using the API `registerAction` by passing the alias of the action, e.g. `if` or `['if', 'if-then-else']` and the function to execute the action flowed by the function to prepare the action.
 
-`registerAction = (actType:string|string[], evalAct:EvalAction, prepareAct:PrepareAction=prepareInvariantAction)`
+API to register action: `registerAction = (actType:string|string[], evalAct:EvalAction, prepareAct:PrepareAction=prepareInvariantAction)`
 
 - Registers an action with a specified type, evaluation function, and optional preparation function.
 - @param {string | string[]} actType - The type(s) of the action to register. Can be a single string or an array of strings.
@@ -69,16 +140,19 @@ The action are registered using the API `registerAction` by passing the alias of
 -  Defaults to `prepareInvariantAction`.
 
 The actions registered are:
+
 ```TypeScript
 registerAction('rest', restAction);
 registerAction(['calc', 'calculus'], calcAction);
 registerAction(['if-then-else','if'], ifAction, ifActionPrpeare)
+registerAction('copy', copyAction);
 registerAction('switch', switchAction, switchActionPrpeare)
 registerAction('sequence', notYetImplemented)
 registerAction(['for-each','foreach'], notYetImplemented)
 registerAction('rise-event-on-array-change', notYetImplemented)
 registerAction('set', setAction)
 ```
+use the API to extend this framework by register you custom actions.
 
 ### REST Action
 
@@ -132,7 +206,37 @@ As show in the example the action is dependant on employees (that store a list o
 ### if | if-then-else
 
 
-### switch
+### SWITCH Action
+
+**kind: `switch`**
+
+This action acts as a switch control flow. 
+
+- `case`: An object where the keys are used to match the value obtained from `depends`. If there are multiple dependencies, only the first one is used to match the case. The `[keys]` are arrays of actions that will be executed if the case matches. The actions are executed based on the dependency in the scope of the case but are always executed independently of whether the properties are changed or not.
+- `default`: An optional property containing actions to execute if none of the cases match the `depends` value.
+
+```json
+{
+  "kind": "switch",
+  "depends": "#/properties/filter",
+  "case": {
+    "Alice": [{
+      "$ref": "set-switch",
+      "value": "Alice is selected"
+    }],
+    "Bob": [{
+      "$ref": "set-switch",
+      "value": "Bob is selected"
+    }]
+  },
+  "default": [{
+    "$ref": "set-switch",
+    "value": "Default is selected"
+  }]
+}
+```
+
+
 ### set
 
 **kind: `set`**
