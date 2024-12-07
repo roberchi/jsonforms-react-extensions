@@ -14,7 +14,7 @@ To configure an action in the `ui-schema.json`, follow these steps:
 
 1. **Define the Action**: Add an action object to the `actions` array in your `ui-schema.json`. Each action should have a `scope`, `kind`, `behavior`, `script`, and `depends` properties.
 
-2. **Scope**: Specify the JSON pointer to the property that the action affects.
+2. **Scope**: Specify the JSON pointer to the property that the action affects. In case the action doesn't change directly the property it is ignored, e.g. the switch action doesn't use scope, the properties are changed in the case/default block. 
 
 3. **Kind**: Define the type of action. It can be either `calc` for calculated actions or `rest` for REST API calls.
 
