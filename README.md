@@ -130,6 +130,8 @@ As show in the example the action is dependant on employees (that store a list o
  NOTE: the variables could be undefined, so is a good practice to check it.
 
 ### if | if-then-else
+
+
 ### switch
 ### set
 

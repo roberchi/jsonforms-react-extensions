@@ -15,7 +15,9 @@ export interface IActionSwitch extends IAction {
 
 export const switchActionPrpeare = (act: IAction, refs:IAction[]): IAction => {
     const newAct = _.cloneDeep(act) as IActionSwitch;
-    _.keys(newAct.case).forEach((k)=>_.set(newAct, k, prepareActions(_.get(newAct, k), refs)));
+
+    _.keys(newAct.case) // for each case prepare actions
+        .forEach((k)=>_.set(newAct.case, k, prepareActions(_.get(newAct.case, k), refs)));
     (newAct as IActionSwitch).default = newAct.default?prepareActions(newAct.default, refs):undefined;
     return newAct;
 }
