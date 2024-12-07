@@ -109,6 +109,11 @@
         "depends": [
           "#/properties/employees"
         ]
+      },
+      {
+        "kind": "copy",
+        "depends": "#/properties/filter",
+        "scope": "#/properties/copy_filter"
       }
     ],
     "on-event": [
@@ -196,7 +201,7 @@
           "elements": [
             {
               "type": "Control",
-              "label": "Upper case filter",
+              "label": "Upper case filter (CALC)",
               "scope": "#/properties/upper_filter",
               "options": {
                 "readonly": true
@@ -204,7 +209,7 @@
             },
             {
               "type": "Control",
-              "label": "Total employees",
+              "label": "Total employees (CALC)",
               "scope": "#/properties/count",
               "options": {
                 "readonly": true
@@ -212,7 +217,7 @@
             },
             {
               "type": "Control",
-              "label": "",
+              "label": "count * 2 (CALC)",
               "scope": "#/properties/countX2",
               "options": {
                 "readonly": true
@@ -220,7 +225,7 @@
             },
             {
               "type": "Control",
-              "label": "if outcome",
+              "label": "IF outcome",
               "scope": "#/properties/_if",
               "options": {
                 "readonly": true
@@ -228,11 +233,20 @@
             },
             {
               "type": "Control",
-              "label": "switch outcome",
+              "label": "SWITCH outcome",
               "scope": "#/properties/_switch",
               "options": {
                 "readonly": true
               }
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/copy_filter",
+              "label": "COPY filter",
+              "options": {
+                "readonly": true
+              }
+
             }
           ]
         }

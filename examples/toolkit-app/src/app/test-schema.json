@@ -56,6 +56,9 @@
       "type": "integer",
       "minimum":0
     },
+    "copy_filter":{
+      "type":"string"
+    },
     "_if": {
       "type": "string"
     },
