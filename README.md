@@ -61,10 +61,12 @@ An action in this context is configured by the following properties:
 The action are registered using the API `registerAction` by passing the alias of the action, e.g. `if` or `['if', 'if-then-else']` and the function to execute the action flowed by the function to prepare the action.
 
 `registerAction = (actType:string|string[], evalAct:EvalAction, prepareAct:PrepareAction=prepareInvariantAction)`
-Registers an action with a specified type, evaluation function, and optional preparation function.
-@param {string | string[]} actType - The type(s) of the action to register. Can be a single string or an array of strings.
-@param {EvalAction} evalAct - The function to evaluate the action.
-@param {PrepareAction} [prepareAct=prepareInvariantAction] - The optional function to prepare the action before evaluation. Defaults to `prepareInvariantAction`.
+
+- Registers an action with a specified type, evaluation function, and optional preparation function.
+- @param {string | string[]} actType - The type(s) of the action to register. Can be a single string or an array of strings.
+- @param {EvalAction} evalAct - The function to evaluate the action.
+- @param {PrepareAction} [prepareAct=prepareInvariantAction] - The optional function to prepare the action before evaluation.
+-  Defaults to `prepareInvariantAction`.
 
 The actions registered are:
 ```TypeScript
@@ -131,7 +133,7 @@ As show in the example the action is dependant on employees (that store a list o
 ### switch
 ### set
 
-***kind: `set` ***
+**kind: `set`**
 
 This action when fired allow to set a property to a specific value.
 
@@ -143,9 +145,6 @@ This action when fired allow to set a property to a specific value.
   "depends": "#/properties/setcolor"
 }
 ```
-### COPY Action
-
-kind: copy
 
 ### COPY Action
 
