@@ -7,7 +7,7 @@ import { setAction } from './lib/actions/setAction';
 import { switchAction, switchActionPrpeare } from './lib/actions/switchAction';
 
 export * from './lib/toolkit';
-export {ActionsMiddleware, getExecutionStatus} from './lib/actionsMiddleware';
+export {ActionsMiddleware} from './lib/actionsMiddleware';
 
 
 // register actions for middleware

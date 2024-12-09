@@ -7,7 +7,7 @@ import test_uischema from './test-uischema.json';
 import test_data from './test-data.json';
 import { ErrorObject } from 'ajv';
 import { INIT, UPDATE_DATA, UPDATE_CORE, Middleware, CoreActions, JsonFormsCore } from  '@jsonforms/core'
-import { ActionsMiddleware, getExecutionStatus } from "@jsonforms-react-extensions/toolkit";
+import { ActionsMiddleware} from "@jsonforms-react-extensions/toolkit";
 import { LinearProgress } from '@mui/material';
 
 const renderers = [
@@ -27,7 +27,7 @@ export function App() {
   const [data, setData] = useState(test_data);
   const [errors, setErrors] = useState<ErrorObject[]>();
   const [status, setStatus] = useState<"pending"|"fulfilled"|"failed">("fulfilled");
-  const actionMiddleware = useMemo(() => ActionsMiddleware.actionsMiddleware(setData, setErrors,(status)=>setStatus(status)), [setData, setErrors]);
+  const actionMiddleware = useMemo(() => ActionsMiddleware.actionsMiddleware(setData, setErrors,(s)=>setStatus(s)), [setData, setErrors]);
 
   return (
     <StyledApp>

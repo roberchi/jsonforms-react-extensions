@@ -301,6 +301,13 @@ In this example if `selectBlue` is changed the `color` property is set to `blue`
 }
 
 ```
+
+## Use of javascript
+
+
+
+
+
 # Run APP demo
 
 To run the demo app with nock REST api use: 
